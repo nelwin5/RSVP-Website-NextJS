@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss"; /* ✅ Tailwind v4 now uses a single import */
+
+/* Global Theme Variables */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-family: 'Montserrat', sans-serif; /* Define global font */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: white;
+    --foreground: #ededed;
+  }
+}
+
+/* Apply Global Styling */
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-family); /* Use Montserrat globally */
+}
