@@ -1,155 +1,202 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 
-interface Guest {
+// Define the Guest type
+type Guest = {
   id: number;
   name: string;
-  email: string;
-  phone: string;
+  contact: string;
   status: string;
   address: string;
-}
+};
 
 export default function GuestList() {
-  const [guests, setGuests] = useState<Guest[]>([
-    {
-      id: 1,
-      name: "Albert Flores",
-      email: "flores@email.com",
-      phone: "+1 (632) 8765-9878",
-      status: "Attending",
-      address: "Caillynton, Alaska",
-    },
-  ]);
-
-  const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
   const [newGuest, setNewGuest] = useState<Guest>({
-    id: Date.now(),
+    id: 0,
     name: "",
-    email: "",
-    phone: "",
-    status: "Attending",
+    contact: "",
+    status: "Pending",
     address: "",
   });
 
+  // Pagination setup
+  const [currentPage, setCurrentPage] = useState(1);
+  const guestsPerPage = 5;
+  const indexOfLastGuest = currentPage * guestsPerPage;
+  const indexOfFirstGuest = indexOfLastGuest - guestsPerPage;
+  const filteredGuests = guests.filter((guest) =>
+    guest.name.toLowerCase().includes(search.toLowerCase())
+  );
+  const currentGuests = filteredGuests.slice(indexOfFirstGuest, indexOfLastGuest);
+  const totalPages = Math.ceil(filteredGuests.length / guestsPerPage);
+
+  // Handle guest deletion
   const handleDelete = (id: number) => {
     setGuests(guests.filter((guest) => guest.id !== id));
   };
 
-  const handleEdit = (guest: Guest) => {
-    setEditingGuest(guest);
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setNewGuest({ ...newGuest, [name]: value });
   };
 
-  const handleSave = () => {
-    if (editingGuest) {
-      setGuests(
-        guests.map((guest) => (guest.id === editingGuest.id ? editingGuest : guest))
-      );
-      setEditingGuest(null);
-    }
-  };
-
+  // Handle adding a new guest
   const handleAddGuest = () => {
+    if (!newGuest.name || !newGuest.contact || !newGuest.address) {
+      alert("Please fill in all fields.");
+      return;
+    }
     setGuests([...guests, { ...newGuest, id: Date.now() }]);
-    setNewGuest({ id: Date.now(), name: "", email: "", phone: "", status: "Attending", address: "" });
+    setShowForm(false);
+    setNewGuest({ id: 0, name: "", contact: "", status: "Pending", address: "" });
   };
 
   return (
-    <div className="container mx-auto px-5 py-10">
-      <h1 className="text-2xl font-bold mb-5">Manage Your Guest List</h1>
+    <div className="min-h-screen p-10 bg-gray-100">
+      <h1 className="text-3xl font-bold mb-6">Manage Your Guest List</h1>
+
+      {/* Add Guest Button */}
       <button
-        className="mb-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-        onClick={handleAddGuest}
+        onClick={() => setShowForm(!showForm)}
+        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
       >
-        Add Guest
+        {showForm ? "Close Form" : "Add Guest"}
       </button>
-      <div className="overflow-x-auto bg-white rounded-lg shadow-md p-4">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-left text-black">
-              <th className="p-2"><input type="checkbox" /></th>
-              <th className="p-2">Name</th>
-              <th className="p-2">Contact</th>
-              <th className="p-2">Status</th>
-              <th className="p-2">Address</th>
-              <th className="p-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {guests.map((guest) => (
+
+      {/* Add Guest Form */}
+      {showForm && (
+        <div className="bg-white p-4 shadow-md rounded-lg mb-4">
+          <h2 className="text-xl font-semibold mb-2">Add New Guest</h2>
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            className="w-full p-2 border rounded mb-2"
+            value={newGuest.name}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="contact"
+            placeholder="Contact"
+            className="w-full p-2 border rounded mb-2"
+            value={newGuest.contact}
+            onChange={handleInputChange}
+          />
+          <select
+            name="status"
+            className="w-full p-2 border rounded mb-2"
+            value={newGuest.status}
+            onChange={handleInputChange}
+          >
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+          </select>
+          <input
+            type="text"
+            name="address"
+            placeholder="Address"
+            className="w-full p-2 border rounded mb-2"
+            value={newGuest.address}
+            onChange={handleInputChange}
+          />
+          <button
+            onClick={handleAddGuest}
+            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600"
+          >
+            Add Guest
+          </button>
+        </div>
+      )}
+
+      {/* Search Input */}
+      <input
+        type="text"
+        placeholder="Search guest..."
+        className="p-2 border rounded w-full mb-4"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {/* Guest List Table */}
+      <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-3 text-left">Name</th>
+            <th className="p-3 text-left">Contact</th>
+            <th className="p-3 text-left">Status</th>
+            <th className="p-3 text-left">Address</th>
+            <th className="p-3 text-left">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentGuests.length > 0 ? (
+            currentGuests.map((guest) => (
               <tr key={guest.id} className="border-t">
-                <td className="p-2"><input type="checkbox" /></td>
-                <td className="p-2 flex items-center gap-2">
-                  <Image
-                    src="/avatar.png"
-                    alt="Profile"
-                    width={30}
-                    height={30}
-                    className="rounded-full"
-                  />
-                  {guest.name}
-                </td>
-                <td className="p-2">
-                  {guest.email}
-                  <br />
-                  {guest.phone}
-                </td>
-                <td className="p-2">
-                  <span className="bg-green-100 text-green-600 px-2 py-1 rounded-lg">
+                <td className="p-3">{guest.name}</td>
+                <td className="p-3">{guest.contact}</td>
+                <td className="p-3">
+                  <span
+                    className={`px-2 py-1 rounded text-white ${
+                      guest.status === "Pending" ? "bg-yellow-500" : "bg-green-500"
+                    }`}
+                  >
                     {guest.status}
                   </span>
                 </td>
-                <td className="p-2">{guest.address}</td>
-                <td className="p-2 flex gap-2">
-                  <button
-                    className="text-gray-600 hover:text-blue-600"
-                    onClick={() => handleEdit(guest)}
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    className="text-gray-600 hover:text-red-600"
-                    onClick={() => handleDelete(guest.id)}
-                  >
-                    🗑️
+                <td className="p-3">{guest.address}</td>
+                <td className="p-3">
+                  <button className="text-red-500" onClick={() => handleDelete(guest.id)}>
+                    🗑 Delete
                   </button>
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {editingGuest && (
-        <div className="mt-5 p-4 border rounded-lg bg-white shadow-md">
-          <h2 className="text-lg font-semibold mb-3 text-black">Edit Guest</h2>
-          <input
-            type="text"
-            className="border p-2 w-full mb-2 text-black"
-            value={editingGuest.name}
-            onChange={(e) => setEditingGuest({ ...editingGuest, name: e.target.value })}
-          />
-          <input
-            type="text"
-            className="border p-2 w-full mb-2 text-black"
-            value={editingGuest.email}
-            onChange={(e) => setEditingGuest({ ...editingGuest, email: e.target.value })}
-          />
-          <input
-            type="text"
-            className="border p-2 w-full mb-2 text-black"
-            value={editingGuest.phone}
-            onChange={(e) => setEditingGuest({ ...editingGuest, phone: e.target.value })}
-          />
+            ))
+          ) : (
+            <tr>
+              <td colSpan={5} className="text-center p-4">
+                No guests found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4 space-x-2">
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            onClick={handleSave}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
           >
-            Save Changes
+            Prev
+          </button>
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(index + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === index + 1 ? "bg-blue-500 text-white" : "bg-gray-300"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
           </button>
         </div>
       )}
     </div>
   );
-}               
+}
