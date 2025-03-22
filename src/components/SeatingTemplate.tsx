@@ -1,4 +1,4 @@
-"use client"; // Ensures this runs as a client component
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -43,7 +43,7 @@ export default function SeatingLayouts() {
     }
   };
 
-  const handleReset = () => {
+  const handleBack = () => {
     setSelectedCategory(null);
     setSelectedLayout(null);
     setUploadedImage(null);
@@ -54,82 +54,117 @@ export default function SeatingLayouts() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-10">
-      <h1 className="text-3xl font-bold text-center mb-6">Select a Seating Layout</h1>
+    <div className="min-h-screen bg-gray-50 p-8 flex flex-col items-center">
+      <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+        Select a Seating Layout
+      </h1>
 
+      {/* If no selection is made, show category options */}
       {!selectedCategory && !uploadedImage ? (
-        <div className="grid md:grid-cols-3 gap-6 text-center">
-          {Object.keys(layouts).map((category) => (
-            <button
-              key={category}
-              className="p-4 bg-white shadow-lg rounded-lg text-xl font-semibold hover:bg-gray-200"
-              onClick={() => handleCategorySelect(category)}
-            >
-              {category}
-            </button>
-          ))}
-          <div className="p-4 bg-white shadow-lg rounded-lg text-xl font-semibold border-dashed border-2 border-gray-400 flex flex-col items-center">
-            <h2 className="text-xl mb-2">Upload Your Own</h2>
-            <input type="file" accept="image/*" onChange={handleUpload} className="mt-2 cursor-pointer" />
+        <div className="w-full max-w-3xl">
+          {/* Guest Categories */}
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6 text-center">
+            {Object.keys(layouts).map((category) => (
+              <button
+                key={category}
+                className="p-4 bg-white shadow-md rounded-lg text-lg font-semibold hover:bg-gray-100 transition w-full border border-gray-300"
+                onClick={() => handleCategorySelect(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {/* Centered Upload Box */}
+          <div className="flex justify-center">
+            <div className="p-6 bg-white shadow-md rounded-lg border-dashed border-2 border-gray-400 flex flex-col items-center w-full max-w-sm">
+              <h2 className="text-lg font-semibold mb-3 text-gray-700">
+                Upload Your Own
+              </h2>
+              <label className="cursor-pointer px-4 py-2 bg-[#ac263e] text-white rounded-lg hover:bg-[#911e34] transition">
+                Choose File
+                <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+              </label>
+            </div>
           </div>
         </div>
-      ) : !selectedLayoutData && !uploadedImage ? (
-        <div className="grid md:grid-cols-2 gap-6">
-          {layouts[selectedCategory!].map((layout) => (
-            <div
-              key={layout.id}
-              className="p-4 bg-white shadow-lg rounded-lg transition-all"
+      ) : (
+        <>
+          {/* Back Button (Only for Category or Layout Selection) */}
+          {!selectedLayoutData && !uploadedImage && (
+            <button
+              className="mb-6 px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+              onClick={handleBack}
             >
-              <h2 className="text-xl font-semibold text-center mb-4">{layout.name}</h2>
-              <Image
-                src={layout.image}
-                alt={layout.name}
-                width={500}
-                height={300}
-                className="rounded-lg"
-              />
+              ← Back
+            </button>
+          )}
+
+          {/* If category is selected but no layout yet, show layout options */}
+          {!selectedLayoutData && !uploadedImage ? (
+            <div className="grid md:grid-cols-2 gap-6 w-full max-w-3xl">
+              {layouts[selectedCategory!].map((layout) => (
+                <div key={layout.id} className="p-4 bg-white shadow-md rounded-lg border border-gray-200">
+                  <h2 className="text-xl font-semibold text-center mb-4 text-gray-800">
+                    {layout.name}
+                  </h2>
+                  <Image
+                    src={layout.image}
+                    alt={layout.name}
+                    width={500}
+                    height={300}
+                    className="rounded-lg"
+                  />
+                  <button
+                    className="mt-4 w-full bg-[#ac263e] text-white py-2 rounded-lg hover:bg-[#911e34] transition font-semibold"
+                    onClick={() => handleSelect(layout.id)}
+                  >
+                    Select Layout
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center w-full max-w-3xl">
+              {/* Selected Layout Preview */}
+              {selectedLayoutData && (
+                <>
+                  <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                    {selectedLayoutData.name}
+                  </h2>
+                  <Image
+                    src={selectedLayoutData.image}
+                    alt={selectedLayoutData.name}
+                    width={700}
+                    height={500}
+                    className="rounded-lg shadow-lg"
+                  />
+                </>
+              )}
+              {/* Uploaded Image Preview */}
+              {uploadedImage && (
+                <>
+                  <h2 className="text-2xl font-bold mb-4 text-gray-800">Custom Uploaded Layout</h2>
+                  <Image
+                    src={uploadedImage}
+                    alt="Uploaded Layout"
+                    width={700}
+                    height={500}
+                    className="rounded-lg shadow-lg"
+                  />
+                </>
+              )}
+
+              {/* Change Layout Button (Replaces Back Button) */}
               <button
-                className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
-                onClick={() => handleSelect(layout.id)}
+                className="mt-6 bg-[#ac263e] text-white py-2 px-6 rounded-lg hover:bg-[#ac263e] transition font-semibold"
+                onClick={handleBack}
               >
-                Select Layout
+                Change Layout
               </button>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center">
-          {selectedLayoutData && (
-            <>
-              <h2 className="text-2xl font-bold mb-4">{selectedLayoutData.name}</h2>
-              <Image
-                src={selectedLayoutData.image}
-                alt={selectedLayoutData.name}
-                width={700}
-                height={500}
-                className="rounded-lg shadow-lg"
-              />
-            </>
           )}
-          {uploadedImage && (
-            <>
-              <h2 className="text-2xl font-bold mb-4">Custom Uploaded Layout</h2>
-              <Image
-                src={uploadedImage}
-                alt="Uploaded Layout"
-                width={700}
-                height={500}
-                className="rounded-lg shadow-lg"
-              />
-            </>
-          )}
-          <button
-            className="mt-6 bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600"
-            onClick={handleReset}
-          >
-            Change Layout
-          </button>
-        </div>
+        </>
       )}
     </div>
   );
