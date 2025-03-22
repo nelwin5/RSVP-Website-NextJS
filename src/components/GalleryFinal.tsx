@@ -68,14 +68,14 @@ const GallerySelector = () => {
         <div className="flex justify-between mb-6">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 text-sm bg-gray-300 rounded-lg disabled:opacity-50"
             disabled={currentPage === 0}
           >
             ◀ Previous
           </button>
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, TOTAL_PAGES - 1))}
-            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 text-sm bg-gray-300 rounded-lg disabled:opacity-50"
             disabled={currentPage === TOTAL_PAGES - 1}
           >
             Next ▶
@@ -86,13 +86,13 @@ const GallerySelector = () => {
       {/* View Mode Toggle */}
       <div className="flex justify-center gap-4 mb-6">
         <button
-          className={`px-4 py-2 border rounded-lg transition-all ${viewMode === 'single' ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`px-4 py-2 text-sm border rounded-xl transition-all ${viewMode === 'single' ? "bg-[#ac263e] text-white" : "bg-white"}`}
           onClick={() => setViewMode('single')}
         >
           Single Page View
         </button>
         <button
-          className={`px-4 py-2 border rounded-lg transition-all ${viewMode === 'all' ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`px-4 py-2 text-sm border rounded-xl transition-all ${viewMode === 'all' ? "bg-[#ac263e] text-white" : "bg-white"}`}
           onClick={() => setViewMode('all')}
         >
           All Pages View
@@ -105,8 +105,8 @@ const GallerySelector = () => {
           {[1, 2, 3].map((num) => (
             <button
               key={num}
-              className={`px-4 py-2 border rounded-lg transition-all ${
-                pages[currentPage].template === num ? "bg-blue-500 text-white" : "bg-gray-200"
+              className={`px-4 py-2 text-sm border rounded-xl transition-all ${
+                pages[currentPage].template === num ? "bg-[#ac263e] text-white" : "bg-white"
               }`}
               onClick={() => handleTemplateSelect(num)}
             >
@@ -138,7 +138,7 @@ const GallerySelector = () => {
         <div className="flex justify-between mt-6">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 text-sm bg-gray-300 rounded-lg disabled:opacity-50"
             disabled={currentPage === 0}
           >
             ◀ Previous
@@ -148,7 +148,7 @@ const GallerySelector = () => {
           </div>
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, TOTAL_PAGES - 1))}
-            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 text-sm bg-gray-300 rounded-lg disabled:opacity-50"
             disabled={currentPage === TOTAL_PAGES - 1}
           >
             Next ▶
