@@ -1,0 +1,46 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  MERCHANT
+  PLANNER
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  businessName  String?
+  email         String    @unique
+  password      String
+  role          Role
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+
+  weddingWebsites WeddingWebsite[]
+}
+
+model WeddingWebsite {
+  id         String   @id @default(uuid())
+  plannerId  String
+  planner    User     @relation(fields: [plannerId], references: [id])
+  title      String
+  theme      String
+  createdAt  DateTime @default(now())
+
+  // ✅ New fields for website content
+  eventDate  DateTime?  // Optional event date
+  coupleName String?    // Name of the couple
+  gallery    Json?      // Store image URLs in an array
+  templates  Json? // ✅ Store selected template for each page
+  guestList  Json?      // Store guests as an array of objects
+  seatingLayout Json?  // ✅ Store selected seating layout as JSON (layout ID or uploaded image URL)
+}
+
+
+
