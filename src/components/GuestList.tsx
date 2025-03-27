@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react"; // ✅ Import `useCallback`
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash, FaTimes, FaSearch } from "react-icons/fa";
@@ -28,63 +29,70 @@ export default function GuestList() {
     address: "",
   });
 
-  // ✅ Fetch guests from database when the component loads
-const fetchGuests = async () => {
+
+const fetchGuests = useCallback(async () => {
   if (!weddingWebsiteId) return;
+
   try {
-    const res = await fetch(`/api/wedding-websites/${weddingWebsiteId}/guests`);
+    const res = await fetch(`/api/wedding-websites/${String(weddingWebsiteId)}/guests`);
     const data = await res.json();
     setGuests(data);
   } catch (error) {
     console.error("Failed to load guests:", error);
   }
-};
+}, [weddingWebsiteId]); // ✅ Dependencies ensure function stability
 
-// ✅ UseEffect to call fetchGuests on load
 useEffect(() => {
   fetchGuests();
-}, [weddingWebsiteId]);
+}, [fetchGuests]); // ✅ Now safe to include `fetchGuests`
+
+  
+  
 
 
-const handleSaveGuest = async () => {
-  if (!newGuest.name || !newGuest.contact || !newGuest.address) {
-    alert("Please fill in all fields.");
-    return;
-  }
 
-  try {
-    const method = editingGuestId ? "PUT" : "POST";
-    const body = JSON.stringify(editingGuestId ? { ...newGuest, id: editingGuestId } : newGuest);
+  const handleSaveGuest = async () => {
+    if (!newGuest.name || !newGuest.contact || !newGuest.address) {
+      alert("Please fill in all fields.");
+      return;
+    }
+  
+    try {
+      const method = editingGuestId ? "PUT" : "POST";
+      const body = editingGuestId
+  ? JSON.stringify({ ...newGuest, id: editingGuestId }) // ✅ Only assign `id` when editing
+  : JSON.stringify({ ...newGuest, id: undefined }); // ✅ Remove `id` when creating a new guest
 
-    await fetch(`/api/wedding-websites/${weddingWebsiteId}/guests`, {
-      method,
-      body,
-      headers: { "Content-Type": "application/json" },
-    });
+  
+      await fetch(`/api/wedding-websites/${String(weddingWebsiteId)}/guests`, {
+        method,
+        body,
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      setNewGuest({ id: 0, name: "", contact: "", status: "Pending", address: "" });
+      setEditingGuestId(null);
+      setShowForm(false);
+  
+      await fetchGuests(); // ✅ Refresh guest list after saving
+    } catch (error) {
+      console.error("Error saving guest:", error);
+    }
+  };
+  
 
-    setNewGuest({ id: 0, name: "", contact: "", status: "Pending", address: "" });
-    setEditingGuestId(null);
-    setShowForm(false);
-    
-    await fetchGuests();  // ✅ Refresh guest list after saving
-  } catch (error) {
-    console.error("Error saving guest:", error);
-  }
-};
-
-const handleDeleteGuest = async (id: number) => {
-  try {
-    await fetch(`/api/wedding-websites/${weddingWebsiteId}/guests`, {
-      method: "DELETE",
-      body: JSON.stringify({ guestId: id }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    await fetchGuests();  // ✅ Refresh list after deleting
-  } catch (error) {
-    console.error("Error deleting guest:", error);
-  }
-};
+  const handleDeleteGuest = async (id: number) => {
+    try {
+      await fetch(`/api/wedding-websites/${String(weddingWebsiteId)}/guests?guestId=${id}`, {
+        method: "DELETE",
+      });
+  
+      await fetchGuests(); // ✅ Refresh list after deleting
+    } catch (error) {
+      console.error("Error deleting guest:", error);
+    }
+  };
+  
 
   
 
@@ -120,7 +128,7 @@ const handleDeleteGuest = async (id: number) => {
       <div className="flex items-center space-x-2">
   <label className="text-gray-600 text-sm">Show</label>
   <select
-    className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+    className="border border-gray-300 rounded-md px-3 py-1 text-sm text-gray-600 focus:ring-2 focus:ring-[#ac263e] outline-none"
     value={guestsPerPage}
     onChange={(e) => {
       setGuestsPerPage(Number(e.target.value));
@@ -142,7 +150,7 @@ const handleDeleteGuest = async (id: number) => {
             <input
               type="text"
               placeholder="Search name, email, or etc."
-              className="w-full p-2 pl-10 text-sm border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+              className="w-full p-2 pl-10 text-sm text-gray-800 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-[#ac263e] outline-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -159,7 +167,7 @@ const handleDeleteGuest = async (id: number) => {
             setEditingGuestId(null);
             setNewGuest({ id: 0, name: "", contact: "", status: "Pending", address: "" });
           }}
-          className="mb-4 px-10 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
+          className="mb-4 px-7 py-2 bg-[#ac263e] text-sm text-white rounded-lg shadow-md hover:bg-[#ac263e] transition"
         >
           Add Guest
         </button>
@@ -167,7 +175,7 @@ const handleDeleteGuest = async (id: number) => {
 
       {/* 🚀 Guest Form */}
       {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mb-6">
+        <div className="bg-white p-6 text-gray-800 rounded-lg shadow-lg w-full max-w-lg mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">
               {editingGuestId ? "Edit Guest" : "Add New Guest"}
@@ -186,36 +194,36 @@ const handleDeleteGuest = async (id: number) => {
             <option value="Confirmed">Confirmed</option>
           </select>
           <input type="text" placeholder="Address" className="w-full p-2 border rounded mb-2" value={newGuest.address} onChange={(e) => setNewGuest({ ...newGuest, address: e.target.value })} />
-          <button onClick={handleSaveGuest} className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition">
+          <button onClick={handleSaveGuest} className="w-full bg-[#ac263e] text-white py-3 rounded-lg hover:bg-[#ac263e] transition">
             {editingGuestId ? "Save Changes" : "Add Guest"}
           </button>
         </div>
       )}
 
       {/* 🚀 Guest List Table */}
-<div className="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden mb-6 mx-auto">
+<div className="w-full max-w-4xl bg-white rounded-2xl border-1 border-gray-300 shadow-lg overflow-hidden mb-6 mx-auto">
   <table className="w-full text-center">
-    <thead className="bg-gray-200 text-gray-600">
+    <thead className="bg-gray-100 text-gray-600 text-sm">
       <tr>
-        <th className="p-3">Name</th>
-        <th className="p-3">Contact</th>
-        <th className="p-3">Status</th>
-        <th className="p-3">Address</th>
-        <th className="p-3">Action</th>
+        <th className="p-4">Name</th>
+        <th className="p-4">Contact</th>
+        <th className="p-4">Status</th>
+        <th className="p-4">Address</th>
+        <th className="p-4">Action</th>
       </tr>
     </thead>
     <tbody>
       {currentGuests.map((guest) => (
-        <tr key={guest.id} className="border-t hover:bg-gray-100">
-          <td className="p-3">{guest.name}</td>
-          <td className="p-3">{guest.contact}</td>
-          <td className="p-3">
-            <span className={`px-3 py-1 text-white rounded-full text-sm ${guest.status === "Confirmed" ? "bg-green-500" : "bg-yellow-500"}`}>
+        <tr key={guest.id} className="border-t text-sm border-gray-300 text-gray-600 hover:bg-gray-100">
+          <td className="p-4">{guest.name}</td>
+          <td className="p-4">{guest.contact}</td>
+          <td className="p-4">
+            <span className={`px-4 py-1 text-white rounded-full text-sm ${guest.status === "Confirmed" ? "bg-green-500" : "bg-yellow-500"}`}>
               {guest.status}
             </span>
           </td>
-          <td className="p-3">{guest.address}</td>
-          <td className="p-3 flex justify-center gap-2">
+          <td className="p-4">{guest.address}</td>
+          <td className="p-4 flex justify-center gap-2">
             <button onClick={() => handleEditGuest(guest.id)} className="p-2">
               <FaEdit />
             </button>
@@ -235,9 +243,9 @@ const handleDeleteGuest = async (id: number) => {
   <button
     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
     disabled={currentPage === 1}
-    className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+    className="px-2 py-1 text-sm bg-gray-600 rounded disabled:opacity-50"
   >
-    Previous
+    ◀
   </button>
 
   {/* Page Numbers */}
@@ -245,7 +253,7 @@ const handleDeleteGuest = async (id: number) => {
     <button
       key={i + 1}
       onClick={() => setCurrentPage(i + 1)}
-      className={`px-4 py-2 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-300"}`}
+      className={`px-2 py-1 text-sm rounded ${currentPage === i + 1 ? "bg-black text-white" : "bg-gray-600"}`}
     >
       {i + 1}
     </button>
@@ -255,9 +263,9 @@ const handleDeleteGuest = async (id: number) => {
   <button
     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
     disabled={currentPage === totalPages}
-    className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+    className="px-2 py-1 bg-gray-600 text-sm rounded disabled:opacity-50"
   >
-    Next
+    ▶
   </button>
 </div>
 

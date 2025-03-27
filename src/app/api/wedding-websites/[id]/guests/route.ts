@@ -11,11 +11,8 @@ interface Guest {
   address: string;
 }
 
-export async function GET(
-  req: Request,
-  context: { params: { id: string } } // ✅ Ensure correct type
-) {
-  const { params } = context; // ✅ Extract params explicitly
+// ✅ GET: Fetch guests for a specific wedding website
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     console.log("Fetching guests for wedding website ID:", params.id);
 
@@ -28,12 +25,14 @@ export async function GET(
       return NextResponse.json({ error: "Wedding website not found" }, { status: 404 });
     }
 
+    // ✅ Ensure guestList is always an array before returning
     return NextResponse.json(Array.isArray(wedding.guestList) ? wedding.guestList : []);
   } catch (error) {
     console.error("Error fetching guests:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
 // ✅ POST: Add a new guest
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {

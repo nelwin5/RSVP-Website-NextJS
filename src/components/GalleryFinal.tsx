@@ -110,7 +110,7 @@ const GallerySelector = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4 text-center">
+      <h2 className="text-xl text-gray-800 font-semibold mb-4 text-center">
         {viewMode === "single" ? `Page ${currentPage + 1}` : "All Pages"}
       </h2>
 
@@ -118,14 +118,14 @@ const GallerySelector = () => {
         <div className="flex justify-between mb-6">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-            className="px-4 py-2 text-sm bg-gray-300 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 text-sm bg-gray-600 rounded-lg disabled:opacity-50"
             disabled={currentPage === 0}
           >
             ◀ Previous
           </button>
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, TOTAL_PAGES - 1))}
-            className="px-4 py-2 text-sm bg-gray-300 rounded-lg disabled:opacity-50"
+            className="px-4 py-2 text-sm bg-gray-600 rounded-lg disabled:opacity-50"
             disabled={currentPage === TOTAL_PAGES - 1}
           >
             Next ▶
@@ -144,7 +144,7 @@ const GallerySelector = () => {
         </button>
         <button
           className={`px-4 py-2 text-sm border rounded-xl transition-all ${
-            viewMode === "all" ? "bg-[#ac263e] text-white" : "bg-white"
+            viewMode === "all" ? "bg-[#ac263e] text-white" : "text-gray-600 bg-white"
           }`}
           onClick={() => setViewMode("all")}
         >
@@ -158,7 +158,7 @@ const GallerySelector = () => {
             <button
               key={num}
               className={`px-4 py-2 text-sm border rounded-xl transition-all ${
-                pages[currentPage].template === num ? "bg-[#ac263e] text-white" : "bg-white"
+                pages[currentPage].template === num ? "bg-[#ac263e] text-white" : "text-gray-600 bg-white"
               }`}
               onClick={() => handleTemplateSelect(num)}
             >

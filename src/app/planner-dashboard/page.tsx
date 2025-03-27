@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 interface WeddingWebsite {
   id: string;
@@ -120,7 +121,7 @@ export default function PlannerDashboard() {
 
         {/* ✅ Wedding Website Creation Form */}
         <form onSubmit={handleCreateWebsite} className="bg-gray-100 p-6 rounded-md shadow-md max-w-lg">
-          <h2 className="text-xl font-semibold mb-4">Create a Wedding Website</h2>
+          <h2 className="text-xl font-semibold text-black mb-4">Create a Wedding Website</h2>
 
           {error && <p className="text-red-500">{error}</p>}
           {success && <p className="text-green-500">{success}</p>}
@@ -130,14 +131,14 @@ export default function PlannerDashboard() {
             placeholder="Website Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 border rounded-md bg-white mb-4"
+            className="w-full px-4 py-2 border-0 rounded-md text-gray-800 bg-white mb-4"
             required
           />
 
           <select
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
-            className="w-full px-4 py-2 border rounded-md bg-white mb-4"
+            className="w-full px-4 py-2 border-0 rounded-md text-gray-800 bg-white mb-4"
             required
           >
             <option value="default">Default Theme</option>
@@ -145,31 +146,45 @@ export default function PlannerDashboard() {
             <option value="modern">Modern Theme</option>
           </select>
 
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
+          <button type="submit" className="w-full bg-[#ac263e] text-white py-2 rounded-md hover:bg-blue-700">
             Create Website
           </button>
         </form>
 
         {/* ✅ Display Created Wedding Websites */}
-        <h2 className="text-xl font-semibold mt-8 mb-4">Your Wedding Websites</h2>
+        <h2 className="text-xl font-semibold text-black mt-8 mb-4">Your Wedding Websites</h2>
         <ul>
           {weddingWebsites.map((site) => (
             <li key={site.id} className="border p-4 rounded-md mb-2 bg-gray-50 flex justify-between">
               <div>
-                <p className="font-semibold">{site.title}</p>
+                <p className="font-semibold text-black">{site.title}</p>
                 <p className="text-sm text-gray-600">Theme: {site.theme}</p>
               </div>
-              <div className="space-x-2">
+              <div className="flex items-center space-x-2">
+                {/* ✅ View Website Button */}
                 <Link href={`/wedding/${site.id}`}>
-                  <button className="bg-blue-500 text-white px-3 py-1 rounded-md">View Website</button>
+                  <button className="bg-[#ac263e] text-white px-3 py-1 rounded-md">
+                    View Website
+                  </button>
                 </Link>
-                <button onClick={() => handleEditWebsite(site.id)} className="bg-yellow-500 text-white px-3 py-1 rounded-md">
-                  Edit
+
+                {/* ✅ Edit Button with Icon Centered */}
+                <button
+                  onClick={() => handleEditWebsite(site.id)}
+                  className="bg-[#ac263e] text-white p-2 rounded-md flex items-center justify-center"
+                >
+                  <FaEdit className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDeleteWebsite(site.id)} className="bg-red-600 text-white px-3 py-1 rounded-md">
-                  Delete
+
+                {/* ✅ Delete Button with Icon Centered */}
+                <button
+                  onClick={() => handleDeleteWebsite(site.id)}
+                  className="bg-[#ac263e] text-white p-2 rounded-md flex items-center justify-center"
+                >
+                  <FaTrash className="w-4 h-4" />
                 </button>
               </div>
+
             </li>
           ))}
         </ul>

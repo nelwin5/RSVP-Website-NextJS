@@ -106,7 +106,7 @@ export default function SeatingLayouts() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 flex flex-col items-center">
+    <div className="min-h-full bg-gray-50 p-8 flex flex-col items-center">
       <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
         Select a Seating Layout
       </h1>
@@ -114,7 +114,7 @@ export default function SeatingLayouts() {
       {/* If no selection is made, show category options */}
       {!selectedCategory && !uploadedImage ? (
         <div className="w-full max-w-3xl">
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6 text-center">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 text-gray-800 gap-6 mb-6 text-center">
             {Object.keys(layouts).map((category) => (
               <button
                 key={category}
@@ -173,7 +173,7 @@ export default function SeatingLayouts() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center w-full max-w-3xl">
+            <div className="flex flex-col items-center w-full max-w-3xl flex-grow">
               {uploadedImage && (
                 <>
                   <h2 className="text-2xl font-bold mb-4 text-gray-800">Seating Layout</h2>
@@ -182,8 +182,9 @@ export default function SeatingLayouts() {
                     alt="Seating Layout"
                     width={700}
                     height={500}
-                    className="rounded-lg shadow-lg"
+                    className="rounded-lg shadow-lg h-auto"
                   />
+
                 </>
               )}
 
