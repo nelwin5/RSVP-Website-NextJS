@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Gallery from "@/components/GalleryFinal";
 import FloorPlan from "@/components/SeatingTemplate";
 import GuestList from "@/components/GuestList";
+import PublishControls from "@/components/PublishControls"; // ✅ Import PublishControls
 
 interface WeddingWebsite {
   title: string;
@@ -26,27 +27,35 @@ export default function WeddingPage() {
       setError("Invalid wedding website ID.");
       return;
     }
-
-    fetch(`/api/wedding-websites/${id}`)
+  
+    fetch(`/api/wedding-websites/${id}`) // ✅ Fetch full website data (includes drafts)
       .then(async (res) => {
         if (!res.ok) {
           const errorMessage = await res.text();
+          console.error(`❌ API Error (${res.status}):`, errorMessage);
           throw new Error(`Error ${res.status}: ${errorMessage}`);
         }
         return res.json();
       })
       .then((data) => {
+        console.log("✅ Received Website Data:", data);
+  
         if (!data || Object.keys(data).length === 0) {
-          throw new Error("Wedding website not found.");
+          throw new Error("Website not found.");
         }
-        setWeddingData(data);
+  
+        // 🔥 Check if draftData exists and use it, otherwise fallback to main data
+        const content = data.draftData ? JSON.parse(data.draftData) : data;
+  
+        setWeddingData(content);
       })
       .catch((err) => {
-        console.error("Failed to load wedding website:", err);
+        console.error("❌ Fetch failed:", err);
         setError("Failed to load wedding website data.");
       });
   }, [id]);
-
+  
+  
   if (error) return <p className="text-red-500">{error}</p>;
   if (!weddingData) return <p>Loading...</p>;
 
@@ -54,6 +63,11 @@ export default function WeddingPage() {
     <div className="bg-white">
       {/* ✅ Navbar */}
       <Navbar />
+
+      {/* ✅ Publish & Preview Controls */}
+      <div className="container mx-auto px-6 py-4 flex justify-end">
+        <PublishControls />
+      </div>
 
       {/* Wedding Website Sections */}
       <section className="container mx-auto px-6 py-12">

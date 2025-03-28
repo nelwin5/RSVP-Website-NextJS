@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
 interface Guest {
-  id: number;
+  id: string;
   name: string;
   contact: string;
   status: string;
@@ -12,13 +12,17 @@ interface Guest {
 }
 
 // ✅ GET: Fetch guests for a specific wedding website
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params?: { id?: string } }) {
   try {
-    console.log("Fetching guests for wedding website ID:", params.id);
+    if (!params?.id) {
+      return NextResponse.json({ error: "Missing ID parameter" }, { status: 400 });
+    }
+
+    console.log("Fetching wedding website with ID:", params.id);
 
     const wedding = await prisma.weddingWebsite.findUnique({
       where: { id: params.id },
-      select: { guestList: true }, // ✅ Fetch only guest list
+      select: { guestList: true },
     });
 
     if (!wedding) {
@@ -26,12 +30,17 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 
     // ✅ Ensure guestList is always an array before returning
-    return NextResponse.json(Array.isArray(wedding.guestList) ? wedding.guestList : []);
+    const guestList: Guest[] = Array.isArray(wedding.guestList)
+      ? (wedding.guestList as unknown as Guest[]).filter((guest) => guest && typeof guest === "object" && "id" in guest)
+      : [];
+
+    return NextResponse.json(guestList);
   } catch (error) {
     console.error("Error fetching guests:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
 
 // ✅ POST: Add a new guest
 export async function POST(req: Request, { params }: { params: { id: string } }) {
@@ -54,12 +63,26 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     // ✅ Ensure guestList is always an array before updating
-    const existingGuestList = Array.isArray(wedding.guestList) ? wedding.guestList : [];
-    const updatedGuestList = [...existingGuestList, { id: Date.now(), name, contact, status, address }];
+    const existingGuestList: Guest[] = Array.isArray(wedding.guestList)
+      ? (wedding.guestList as unknown as Guest[]).filter((guest) => guest && typeof guest === "object" && "id" in guest)
+      : [];
 
+    // ✅ Create a new guest object
+    const newGuest: Guest = {
+      id: Date.now().toString(), // ✅ Convert to string
+      name,
+      contact,
+      status,
+      address,
+    };
+
+    // ✅ Append the new guest to the existing list
+    const updatedGuestList: Guest[] = [...existingGuestList, newGuest];
+
+    // ✅ Save the updated guest list in the database
     await prisma.weddingWebsite.update({
       where: { id: params.id },
-      data: { guestList: updatedGuestList },
+      data: { guestList: updatedGuestList as unknown as object }, // ✅ Ensure Prisma accepts it
     });
 
     return NextResponse.json({ message: "Guest added successfully" }, { status: 201 });
@@ -69,61 +92,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 }
 
-//✅ PUT: Edit an existing guest
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  try {
-    const { id, name, contact, status, address } = await req.json();
 
-    console.log("Editing guest in wedding:", params.id);
-
-    const wedding = await prisma.weddingWebsite.findUnique({
-      where: { id: params.id },
-      select: { guestList: true },
-    });
-
-    if (!wedding) {
-      return NextResponse.json({ error: "Wedding website not found" }, { status: 404 });
-    }
-
-    // Safely cast guestList to Guest[]
-    const existingGuestList = Array.isArray(wedding.guestList) 
-      ? (wedding.guestList as unknown as Guest[]) 
-      : [];
-
-    // Type guard to ensure all elements are of type Guest
-    const updatedGuestList = existingGuestList
-      .filter((guest: Guest | null): guest is Guest => guest !== null) // Exclude null values
-      .map((guest: Guest) =>
-        guest.id === id ? { ...guest, name, contact, status, address } : guest
-      );
-
-    // Convert the updated guest list to a JSON-compatible format
-    const updatedGuestListJson = JSON.stringify(updatedGuestList);
-
-    await prisma.weddingWebsite.update({
-      where: { id: params.id },
-      data: { guestList: updatedGuestListJson }, // Store as JSON string
-    });
-
-    return NextResponse.json({ message: "Guest updated successfully" }, { status: 200 });
-  } catch (error) {
-    console.error("Error updating guest:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
-  }
-}
-
-
-
-
-
-
-// ✅ DELETE: Remove a guest from the list
 // ✅ DELETE: Remove a guest from the list
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
-    const { guestId } = await req.json();
+    if (!params?.id) {
+      return NextResponse.json({ error: "Missing ID parameter" }, { status: 400 });
+    }
 
-    console.log("Deleting guest from wedding:", params.id, "Guest ID:", guestId);
+    const guestId = new URL(req.url).searchParams.get("guestId");
+
+    if (!guestId) {
+      return NextResponse.json({ error: "Guest ID is required" }, { status: 400 });
+    }
 
     const wedding = await prisma.weddingWebsite.findUnique({
       where: { id: params.id },
@@ -134,22 +115,19 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ error: "Wedding website not found" }, { status: 404 });
     }
 
-    // Safely cast guestList to Guest[]
-    const existingGuestList = Array.isArray(wedding.guestList) 
-      ? (wedding.guestList as unknown as Guest[]) 
+    const existingGuestList: Guest[] = Array.isArray(wedding.guestList)
+      ? (wedding.guestList as unknown as Guest[]).filter((guest) => guest && typeof guest === "object" && "id" in guest)
       : [];
 
-    // Use type-safe filtering
-    const updatedGuestList = existingGuestList
-      .filter((guest: Guest | null): guest is Guest => guest !== null) // Exclude null values
-      .filter((guest: Guest) => guest.id !== guestId); // Ensure we're removing the correct guest
+    const updatedGuestList = existingGuestList.filter((guest) => guest.id !== guestId);
 
-    // Convert the updated guest list to a JSON-compatible format
-    const updatedGuestListJson = JSON.stringify(updatedGuestList);
+    if (existingGuestList.length === updatedGuestList.length) {
+      return NextResponse.json({ error: "Guest not found" }, { status: 404 });
+    }
 
     await prisma.weddingWebsite.update({
       where: { id: params.id },
-      data: { guestList: updatedGuestListJson }, // Store as JSON string
+      data: { guestList: updatedGuestList as unknown as object }, // ✅ Ensure Prisma accepts it
     });
 
     return NextResponse.json({ message: "Guest deleted successfully" }, { status: 200 });

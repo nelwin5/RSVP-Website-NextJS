@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -26,20 +26,26 @@ model User {
 }
 
 model WeddingWebsite {
-  id         String   @id @default(uuid())
-  plannerId  String
-  planner    User     @relation(fields: [plannerId], references: [id])
-  title      String
-  theme      String
-  createdAt  DateTime @default(now())
+  id             String   @id @default(uuid())
+  plannerId      String
+  planner        User     @relation(fields: [plannerId], references: [id])
+  title          String
+  theme          String
+  eventDate      DateTime?  // Optional event date
+  coupleName     String?    // Name of the couple
+  gallery        Json?      // Store image URLs in an array
+  templates      Json?      // Store selected template for each page
+  guestList      Json?      // Store guests as an array of objects
+  seatingLayout  Json?      // Store selected seating layout as JSON (layout ID or uploaded image URL)
+  isPublished  Boolean  @default(false)
+  publishedAt  DateTime?
+  draftData    Json?    // ✅ Stores draft changes before publishing
+  publishedData Json?   // ✅ Stores final published data separately
+  customDomain String?  // ✅ Custom domain for published site (e.g., "carlandanne.com")
+  subdomain    String?  // ✅ Subdomain (e.g., "talesevent.weddingofcarlandanne.com")
 
-  // ✅ New fields for website content
-  eventDate  DateTime?  // Optional event date
-  coupleName String?    // Name of the couple
-  gallery    Json?      // Store image URLs in an array
-  templates  Json? // ✅ Store selected template for each page
-  guestList  Json?      // Store guests as an array of objects
-  seatingLayout Json?  // ✅ Store selected seating layout as JSON (layout ID or uploaded image URL)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 
