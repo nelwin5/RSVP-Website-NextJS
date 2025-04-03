@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+
 import { NextResponse } from "next/server";
+import { PrismaClient, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -59,8 +60,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
     await prisma.weddingWebsite.update({
       where: { id: params.id },
-      data: { guestList: updatedGuestList },
+      data: { guestList: updatedGuestList as unknown as Prisma.JsonArray },
     });
+    
 
     return NextResponse.json({ message: "Guest added successfully" }, { status: 201 });
   } catch (error) {
@@ -97,13 +99,12 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         guest.id === id ? { ...guest, name, contact, status, address } : guest
       );
 
-    // Convert the updated guest list to a JSON-compatible format
-    const updatedGuestListJson = JSON.stringify(updatedGuestList);
-
-    await prisma.weddingWebsite.update({
-      where: { id: params.id },
-      data: { guestList: updatedGuestListJson }, // Store as JSON string
-    });
+      await prisma.weddingWebsite.update({
+        where: { id: params.id },
+        data: { guestList: updatedGuestList as unknown as Prisma.JsonArray },
+      });
+      
+    
 
     return NextResponse.json({ message: "Guest updated successfully" }, { status: 200 });
   } catch (error) {
@@ -117,7 +118,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 
 
-// ✅ DELETE: Remove a guest from the list
+
 // ✅ DELETE: Remove a guest from the list
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -144,13 +145,11 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       .filter((guest: Guest | null): guest is Guest => guest !== null) // Exclude null values
       .filter((guest: Guest) => guest.id !== guestId); // Ensure we're removing the correct guest
 
-    // Convert the updated guest list to a JSON-compatible format
-    const updatedGuestListJson = JSON.stringify(updatedGuestList);
-
-    await prisma.weddingWebsite.update({
-      where: { id: params.id },
-      data: { guestList: updatedGuestListJson }, // Store as JSON string
-    });
+      await prisma.weddingWebsite.update({
+        where: { id: params.id },
+        data: { guestList: updatedGuestList as unknown as Prisma.JsonArray }, // ✅ Correct
+      });
+      
 
     return NextResponse.json({ message: "Guest deleted successfully" }, { status: 200 });
   } catch (error) {

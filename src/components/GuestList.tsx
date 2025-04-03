@@ -83,10 +83,12 @@ useEffect(() => {
 
   const handleDeleteGuest = async (id: number) => {
     try {
-      await fetch(`/api/wedding-websites/${String(weddingWebsiteId)}/guests?guestId=${id}`, {
+      await fetch(`/api/wedding-websites/${String(weddingWebsiteId)}/guests`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guestId: id }),
       });
-  
+      
       await fetchGuests(); // ✅ Refresh list after deleting
     } catch (error) {
       console.error("Error deleting guest:", error);

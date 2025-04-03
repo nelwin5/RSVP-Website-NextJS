@@ -28,7 +28,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
               />
             </div>
             {/* Column 2 */}
-            <div className="flex h-[250px] w-1/3 rounded-lg bg-gray-400 items-center justify-center relative">
+            <div className="flex h-[250px] w-1/3 rounded-lg bg-gray-300 items-center justify-center relative">
               {images[1] ? (
                 <Image src={images[1]} alt="Frame 2" layout="fill" objectFit="cover" />
               ) : (
@@ -42,7 +42,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
               />
             </div>
             {/* Column 3 */}
-            <div className="flex h-[250px] w-1/3 rounded-lg bg-gray-500 items-center justify-center relative">
+            <div className="flex h-[250px] w-1/3 rounded-lg bg-gray-300 items-center justify-center relative">
               {images[2] ? (
                 <Image src={images[2]} alt="Frame 3" layout="fill" objectFit="cover" />
               ) : (
@@ -58,7 +58,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
           </div>
           <div className="w-full flex gap-4">
             {/* 1/3 Column */}
-            <div className="flex h-[410px] w-1/3 rounded-lg bg-gray-600 items-center justify-center relative">
+            <div className="flex h-[410px] w-1/3 rounded-lg bg-gray-300 items-center justify-center relative">
               {images[3] ? (
                 <Image src={images[3]} alt="Frame 4" layout="fill" objectFit="cover" />
               ) : (
@@ -75,7 +75,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
             <div className="flex flex-col h-[410px] w-2/3 gap-4">
               {/* Top Row - Two Images */}
               <div className="flex gap-4 h-1/2">
-                <div className="flex w-1/2 rounded-lg bg-gray-700 items-center justify-center relative">
+                <div className="flex w-1/2 rounded-lg bg-gray-300 items-center justify-center relative">
                   {images[4] ? (
                     <Image src={images[4]} alt="Frame 5" layout="fill" objectFit="cover" />
                   ) : (
@@ -88,7 +88,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
                     onChange={(event) => onImageUpload(event, 4)}
                   />
                 </div>
-                <div className="flex w-1/2 rounded-lg bg-gray-600 items-center justify-center relative">
+                <div className="flex w-1/2 rounded-lg bg-gray-300 items-center justify-center relative">
                   {images[5] ? (
                     <Image src={images[5]} alt="Frame 6" layout="fill" objectFit="cover" />
                   ) : (
@@ -104,7 +104,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
               </div>
               {/* Bottom Row - Three Images */}
               <div className="flex gap-4 h-1/2">
-                <div className="flex w-1/3 rounded-lg bg-gray-500 items-center justify-center relative">
+                <div className="flex w-1/3 rounded-lg bg-gray-300 items-center justify-center relative">
                   {images[6] ? (
                     <Image src={images[6]} alt="Frame 7" layout="fill" objectFit="cover" />
                   ) : (
@@ -117,7 +117,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
                     onChange={(event) => onImageUpload(event, 6)}
                   />
                 </div>
-                <div className="flex w-1/3 rounded-lg bg-gray-400 items-center justify-center relative">
+                <div className="flex w-1/3 rounded-lg bg-gray-300 items-center justify-center relative">
                   {images[7] ? (
                     <Image src={images[7]} alt="Frame 8" layout="fill" objectFit="cover" />
                   ) : (
@@ -150,7 +150,7 @@ const GalleryTemplate3 = ({ images = [], onImageUpload }: GalleryTemplate3Props)
         {/* Right Column - 1/3 Width */}
         <div className="flex w-1/3 flex-wrap gap-4">
           <div className="w-full">
-            <div className="flex h-[670px] w-full rounded-lg bg-gray-700 items-center justify-center relative">
+            <div className="flex h-[670px] w-full rounded-lg bg-gray-300 items-center justify-center relative">
               {images[9] ? (
                 <Image src={images[9]} alt="Frame 10" layout="fill" objectFit="cover" />
               ) : (
