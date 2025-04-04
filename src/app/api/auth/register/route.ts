@@ -1,4 +1,4 @@
-import { prisma, Role } from "@/lib/prismaClient"; // ✅ Correct import
+import { prisma, Role } from "@/lib/prismaClient"; 
 import bcrypt from "bcrypt";
 
 export async function POST(req: Request): Promise<Response> {

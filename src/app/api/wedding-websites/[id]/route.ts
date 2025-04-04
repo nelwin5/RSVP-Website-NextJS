@@ -1,19 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
-// import { authOptions } from "../../auth/[...nextauth]/route";
-import { authOptions } from "@/lib/auth"; // ✅ Correct
-
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-// ✅ Handle GET request to fetch a wedding website
-export async function GET(req: Request, context: { params?: { id?: string } }) {
-  try {
-    if (!context.params?.id) {
-      return new Response(JSON.stringify({ error: "Missing ID parameter" }), { status: 400 });
-    }
+// Define the params type for Next.js 15
+type Params = Promise<{ id: string }>;
 
-    const { id } = context.params;
+// Handle GET request to fetch a wedding website
+export async function GET(req: Request, { params }: { params: Params }) {
+  try {
+    const { id } = await params;
     console.log("Fetching wedding website with ID:", id);
 
     const website = await prisma.weddingWebsite.findUnique({
@@ -37,7 +34,7 @@ export async function GET(req: Request, context: { params?: { id?: string } }) {
       return new Response(JSON.stringify({ error: "Wedding website not found" }), { status: 404 });
     }
 
-    // ✅ Parse `seatingLayout` JSON before sending response
+    // Parse `seatingLayout` JSON before sending response
     return new Response(
       JSON.stringify({
         ...website,
@@ -51,17 +48,15 @@ export async function GET(req: Request, context: { params?: { id?: string } }) {
   }
 }
 
-
-// ✅ Handle Updating a Wedding Website
-// ✅ Handle Updating a Wedding Website
-export async function PUT(req: Request, context: { params: { id: string } }) {
+// Handle Updating a Wedding Website
+export async function PUT(req: Request, { params }: { params: Params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "planner") {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
-    const { id } = context.params;
+    const { id } = await params;
     const { title, gallery, templates, seatingLayout } = await req.json();
 
     console.log("📤 Updating Wedding Website:", { id, title, gallery, templates, seatingLayout });
@@ -72,7 +67,7 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
         ...(title && { title }),
         ...(gallery && { gallery }),
         ...(templates && { templates }),
-        ...(seatingLayout && { seatingLayout: typeof seatingLayout === "string" ? seatingLayout : JSON.stringify(seatingLayout) }), // ✅ Only stringify if not a string
+        ...(seatingLayout && { seatingLayout: typeof seatingLayout === "string" ? seatingLayout : JSON.stringify(seatingLayout) }),
       },
     });
 
@@ -84,17 +79,18 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
   }
 }
 
-
-// ✅ Handle Deleting a Wedding Website
-export async function DELETE(req: Request, context: { params: { id: string } }) {
+// Handle Deleting a Wedding Website
+export async function DELETE(req: Request, { params }: { params: Params }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "planner") {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
+    const { id } = await params;
+    
     await prisma.weddingWebsite.delete({
-      where: { id: context.params.id, plannerId: session.user.id }, // ✅ Correct `context.params.id`
+      where: { id, plannerId: session.user.id },
     });
 
     return new Response(JSON.stringify({ message: "Deleted successfully" }), { status: 200 });
