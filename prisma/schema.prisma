@@ -40,6 +40,9 @@ model WeddingWebsite {
   templates  Json? // ✅ Store selected template for each page
   guestList  Json?      // Store guests as an array of objects
   seatingLayout Json?  // ✅ Store selected seating layout as JSON (layout ID or uploaded image URL)
+  // New fields
+  published     Boolean   @default(false) // Tracks if the website is published
+  subdomain     String?   // The generated subdomain for the wedding website
 }
 
 
