@@ -42,7 +42,7 @@ model WeddingWebsite {
   seatingLayout Json?  // ✅ Store selected seating layout as JSON (layout ID or uploaded image URL)
   // New fields
   published     Boolean   @default(false) // Tracks if the website is published
-  subdomain     String?   // The generated subdomain for the wedding website
+  subdomain     String?   @unique// The generated subdomain for the wedding website
 }
 
 
