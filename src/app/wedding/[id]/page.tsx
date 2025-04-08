@@ -118,14 +118,15 @@ export default function WeddingPage() {
 
         {/* Display QR Code if Published */}
         {weddingData.published && weddingData.subdomain && (
-          <div className="mt-4">
-            <p className="text-xl">Your wedding website is published!</p>
-            <p className="text-md text-gray-600">
-              You can access it at: {weddingData.subdomain}.vercel.app
-            </p>
-            <QRCode value={`https://${weddingData.subdomain}.vercel.app`} />
-          </div>
-        )}
+  <div className="mt-4">
+    <p className="text-xl">Your wedding website is published!</p>
+    <p className="text-md text-gray-600">
+      You can access it at: {weddingData.subdomain}.vercel.app
+    </p>
+    <QRCode value={`https://${weddingData.subdomain}.vercel.app`} />
+  </div>
+)}
+
       </section>
     </div>
   );
