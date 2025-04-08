@@ -28,5 +28,17 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 };
+module.exports = {
+  async redirects() {
+    return [
+      {
+        source: '/:subdomain',
+        destination: '/subdomain/:subdomain',
+        permanent: false,
+      },
+    ]
+  },
+}
+
 
 export default nextConfig;
