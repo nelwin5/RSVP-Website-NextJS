@@ -1,16 +1,14 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "package.json",
-        "use": "@vercel/next"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/src/app/[subdomain]/page.tsx"
-      }
-    ]
-  }
-  
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": ":subdomain.yourdomain.com"
+        }
+      ],
+      "destination": "/_subdomain/:subdomain"
+    }
+  ]
+}

@@ -1,28 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export function middleware(req: NextRequest) {
-  const host = req.headers.get("host") || "";
-  const url = req.nextUrl;
+export function middleware(request: NextRequest) {
+  const host = request.headers.get('host') || '';
+  const url = request.nextUrl;
 
-  const baseDomain = "weddingofcarlanne.com"; // Update this with your real domain
-  const isLocalhost = host.includes("localhost");
+  // Vercel preview deploys might have a weird domain like carlandanne.vercel.app
+  // So make sure to handle that too
+  const isLocalhost = host.includes('localhost');
+  const baseDomain = isLocalhost ? 'localhost:3000' : 'yourplatform.com'; // change this to your actual base domain
 
-  let subdomain = "";
-
-  if (isLocalhost) {
-    const parts = host.split(".");
-    if (parts.length > 2) subdomain = parts[0]; // e.g. sub.localhost:3000
-  } else {
-    subdomain = host.replace(`.${baseDomain}`, "");
-  }
-
-  // Skip root domain or www
-  if (!subdomain || subdomain === "www" || host === baseDomain) {
+  // Skip main domain or api routes
+  if (
+    host === baseDomain ||
+    host.startsWith('www.') ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/_next')
+  ) {
     return NextResponse.next();
   }
 
-  // Rewrite to internal subdomain route
-  url.pathname = `/_subdomain/${subdomain}${url.pathname}`;
+  const subdomain = host.replace(`.${baseDomain}`, '');
+
+  // Rewrite the path to the dynamic `[site]` route
+  url.pathname = `/${subdomain}`;
   return NextResponse.rewrite(url);
 }
 
